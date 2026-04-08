@@ -1,0 +1,77 @@
+[project]
+name = "gr0m-mem"
+version = "0.1.0"
+description = "Zero-install persistent memory brain for Claude Code and Claude Desktop. Stops re-asking and re-deriving across sessions."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10,<3.13"
+authors = [{ name = "Gr0m_Mem contributors" }]
+keywords = ["memory", "rag", "sqlite", "mcp", "claude", "wakeup"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    # Zero-install core: every dep here is pure Python or CPython stdlib.
+    # ChromaDB + Ollama + the 1 GB embedding model live on the `semantic`
+    # branch of this repository and are never pulled into the main-branch
+    # install path.
+    "mcp>=1.26.0,<2.0",
+    "networkx>=3.4,<4.0",
+    "pyyaml>=6.0,<7.0",
+]
+
+[project.optional-dependencies]
+tokens = [
+    # Real token counting for the wakeup snapshot budget. Optional —
+    # without it we use a 4-chars-per-token fallback.
+    "tiktoken>=0.8,<1.0",
+]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "tiktoken>=0.8,<1.0",
+]
+
+[project.scripts]
+gr0m_mem = "gr0m_mem.cli:main"
+gr0m-mem = "gr0m_mem.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/MichaelAdamGroberman/gr0m_mem"
+Issues = "https://github.com/MichaelAdamGroberman/gr0m_mem/issues"
+Changelog = "https://github.com/MichaelAdamGroberman/gr0m_mem/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["gr0m_mem"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
