@@ -1,0 +1,37 @@
+{
+  "name": "gr0m_mem",
+  "version": "0.1.0",
+  "description": "Persistent memory brain that stops Claude from re-asking and re-deriving. Works with zero extras — SQLite FTS5 fallback if ChromaDB and Ollama are missing.",
+  "keywords": ["memory", "rag", "chromadb", "sqlite", "mcp", "wakeup"],
+  "license": "MIT",
+  "mcpServers": {
+    "gr0m_mem": {
+      "command": "python",
+      "args": ["-m", "gr0m_mem.mcp_server"]
+    }
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/gr0m_mem/hooks/save_hook.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/gr0m_mem/hooks/precompact_hook.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

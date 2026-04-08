@@ -1,0 +1,34 @@
+name: bench
+
+on:
+  schedule:
+    # Every Monday 06:00 UTC.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  loop_prevention:
+    name: loop prevention
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.9.9"
+      - run: uv python install 3.12
+      - run: uv pip install --system -e ".[dev]"
+      - name: run benchmark
+        run: |
+          uv run --no-sync python -m benchmarks.loop_prevention.run \
+            --out "benchmarks/results/$(date -u +%Y-%m-%d)-loop-prevention.json" \
+            --strict
+      - name: commit results
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "gr0m_mem-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add benchmarks/results/
+          if ! git diff --cached --quiet; then
+            git commit -m "bench: weekly loop_prevention results"
+            git push
+          fi
