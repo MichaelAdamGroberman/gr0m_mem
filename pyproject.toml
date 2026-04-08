@@ -1,0 +1,88 @@
+[project]
+name = "gr0m-mem"
+version = "0.1.0"
+description = "Honest, security-aware memory brain for Claude Code — ChromaDB + temporal KG + reproducible benchmarks."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10,<3.13"
+authors = [{ name = "Gr0m_Mem contributors" }]
+keywords = ["memory", "rag", "chromadb", "temporal-kg", "security", "mcp", "claude"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    # Core deps only — Gr0m_Mem runs out of the box with just these.
+    # ChromaDB and tokenizers are optional extras (see below) so a plain
+    # `pip install gr0m-mem` never fails on platforms where chromadb's Rust
+    # bindings don't build.
+    "mcp>=1.26.0,<2.0",
+    "networkx>=3.4,<4.0",
+    "httpx>=0.28,<1.0",
+    "pyyaml>=6.0,<7.0",
+]
+
+[project.optional-dependencies]
+chromadb = [
+    # Best-quality semantic backend. Install with:
+    #   pip install "gr0m-mem[chromadb]"
+    "chromadb>=1.5.2,<2.0",
+]
+tokens = [
+    # Real token counting for the wakeup snapshot budget. Falls back to a
+    # 4-chars-per-token heuristic if not installed.
+    "tiktoken>=0.8,<1.0",
+]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "numpy>=1.26",
+    "chromadb>=1.5.2,<2.0",
+    "tiktoken>=0.8,<1.0",
+]
+bench = [
+    "datasets>=3.0",
+]
+
+[project.scripts]
+gr0m_mem = "gr0m_mem.cli:main"
+gr0m-mem = "gr0m_mem.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/gr0m/gr0m_mem"
+Issues = "https://github.com/gr0m/gr0m_mem/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["gr0m_mem"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
