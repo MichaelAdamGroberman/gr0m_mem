@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from gr0m_mem.store.embedding import Document, chunk_document
+from gr0m_mem.store.chunking import Document, chunk_document
 from gr0m_mem.types import DocumentId
 
 

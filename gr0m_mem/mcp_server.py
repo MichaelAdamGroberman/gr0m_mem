@@ -74,10 +74,11 @@ mcp = FastMCP(
         "Every corpus is an isolated collection — documents from different "
         "corpora are never mixed. All tools require an explicit `corpus` "
         "argument; there is no default tenant.\n\n"
-        "Backend: Gr0m_Mem auto-selects chromadb if installed, falls back "
-        "to SQLite vector search (with Ollama embeddings) or finally SQLite "
-        "FTS5 lexical search. Call `mem_status` any time to see which "
-        "backend is active and why."
+        "Backend: Gr0m_Mem (main branch) ships only the SQLite FTS5 "
+        "lexical backend — zero dependencies, works anywhere CPython "
+        "runs. For semantic retrieval (chromadb, Ollama) install from "
+        "the `semantic` branch. Call `mem_status` any time to see the "
+        "active backend."
     ),
 )
 
@@ -494,11 +495,9 @@ def mem_status() -> dict[str, Any]:
     """
     return {
         "version": __version__,
+        "branch": "main",
         "backend": _brain.backend_choice.name,
         "backend_reason": _brain.backend_choice.reason,
-        "embed_model": _brain.embedding.model if _brain.embedding else None,
-        "chroma_path": str(_config.chroma_path),
-        "sqlite_vec_path": str(_config.sqlite_vec_path),
         "sqlite_fts_path": str(_config.sqlite_fts_path),
         "graph_db": str(_config.graph_db_path),
         "wakeup_db": str(_config.wakeup_db_path),

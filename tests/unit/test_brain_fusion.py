@@ -50,7 +50,8 @@ def test_score_stays_in_unit_range(brain: Brain) -> None:
 
 
 def test_fts_backend_used_without_ollama(brain: Brain) -> None:
-    """Confirm auto-selection actually lands on sqlite_fts when forced."""
+    """Main-branch Brain must always use sqlite_fts with no embedding client."""
     assert brain.backend.name == "sqlite_fts"
     assert brain.backend.requires_embeddings is False
-    assert brain.embedding is None
+    # Main branch has no embedding client at all.
+    assert not hasattr(brain, "_embed") or brain.__dict__.get("_embed") is None

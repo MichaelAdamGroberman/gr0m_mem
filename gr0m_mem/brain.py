@@ -1,15 +1,15 @@
-"""High-level Gr0m_Mem facade.
+"""High-level Gr0m_Mem facade (main branch — zero-install core).
 
-This is what both the CLI and the MCP server talk to. It owns a
-:class:`VectorBackend` (chosen at init time via the selection cascade),
-an :class:`EmbeddingClient` (only used if the backend needs embeddings),
-a temporal :class:`KnowledgeGraph`, and a :class:`Wakeup` store.
+This is what both the CLI and the MCP server talk to. It owns the
+SQLite FTS5 vector backend, a temporal :class:`KnowledgeGraph`, and a
+:class:`Wakeup` store. On this branch there are no semantic retrieval
+backends and no Ollama client — every dependency is either in the
+Python stdlib or a pure-Python wheel.
 
-The five core operations:
+The five core retrieval operations:
 
-* ``learn``   — ingest a document (header/body/context chunks, embed if
-                the backend supports it, upsert)
-* ``search``  — retrieval within a corpus
+* ``learn``   — ingest a document (header/body/context chunks, upsert)
+* ``search``  — retrieval within a corpus (BM25 via FTS5)
 * ``query``   — alias with a simpler return shape
 * ``rag``     — return a context block ready to inline into a prompt
 * ``analyze`` — aggregate stats about a corpus
@@ -28,10 +28,8 @@ from typing import Any
 from gr0m_mem.config import Config
 from gr0m_mem.graph.kg import KnowledgeGraph
 from gr0m_mem.store.base import VectorBackend
-from gr0m_mem.store.chroma import ChromaBackend, chromadb_available
-from gr0m_mem.store.embedding import Document, EmbeddingClient, chunk_document
+from gr0m_mem.store.chunking import Document, chunk_document
 from gr0m_mem.store.sqlite_fts import SqliteFtsBackend
-from gr0m_mem.store.sqlite_vec import SqliteVectorBackend
 from gr0m_mem.types import Corpus, DocumentId
 from gr0m_mem.wakeup import Wakeup
 
@@ -54,42 +52,26 @@ class BackendChoice:
 
 
 def _select_backend(config: Config) -> tuple[VectorBackend, BackendChoice]:
-    """Pick a vector backend following the auto-selection cascade."""
-    requested = config.backend
+    """Pick a backend. The main branch only has one.
 
-    if requested == "chromadb":
-        return ChromaBackend(config.chroma_path), BackendChoice(
-            "chromadb", "explicitly requested via GR0M_MEM_BACKEND"
+    The ``semantic`` branch has a real cascade (chromadb → sqlite_vec →
+    sqlite_fts). On this branch we always land on ``sqlite_fts`` — but
+    we keep the ``BackendChoice`` return shape so callers (and the
+    ``mem_status`` diagnostic tool) stay compatible with the semantic
+    build.
+    """
+    if config.backend not in ("auto", "sqlite_fts"):
+        log.warning(
+            "backend=%r requested but this is the zero-install main branch; "
+            "only sqlite_fts is available — switching to sqlite_fts. Install "
+            "the semantic branch for chromadb or sqlite_vec.",
+            config.backend,
         )
-    if requested == "sqlite_vec":
-        return SqliteVectorBackend(config.sqlite_vec_path), BackendChoice(
-            "sqlite_vec", "explicitly requested via GR0M_MEM_BACKEND"
-        )
-    if requested == "sqlite_fts":
-        return SqliteFtsBackend(config.sqlite_fts_path), BackendChoice(
-            "sqlite_fts", "explicitly requested via GR0M_MEM_BACKEND"
-        )
-
-    # auto: chromadb → sqlite_vec (if ollama) → sqlite_fts
-    if chromadb_available():
-        return ChromaBackend(config.chroma_path), BackendChoice(
-            "chromadb", "auto: chromadb package is installed"
-        )
-
-    embed = EmbeddingClient(url=config.ollama_url, model=config.embed_model)
-    try:
-        if embed.health():
-            return SqliteVectorBackend(config.sqlite_vec_path), BackendChoice(
-                "sqlite_vec",
-                f"auto: chromadb not installed; ollama reachable with {config.embed_model}",
-            )
-    finally:
-        embed.close()
-
     return SqliteFtsBackend(config.sqlite_fts_path), BackendChoice(
         "sqlite_fts",
-        "auto: chromadb not installed and ollama unreachable — "
-        "falling back to SQLite FTS5 lexical search",
+        "main branch ships only the SQLite FTS5 backend — no Ollama, "
+        "no chromadb, no downloads. Install gr0m-mem from the "
+        "`semantic` branch for semantic retrieval backends.",
     )
 
 
@@ -105,12 +87,6 @@ class Brain:
             self._choice.name,
             self._choice.reason,
         )
-        self._embed: EmbeddingClient | None = None
-        if self._backend.requires_embeddings:
-            self._embed = EmbeddingClient(
-                url=config.ollama_url,
-                model=config.embed_model,
-            )
         self._kg = KnowledgeGraph(
             db_path=config.graph_db_path,
             fact_check_mode=config.fact_check_mode,
@@ -130,10 +106,6 @@ class Brain:
     @property
     def backend_choice(self) -> BackendChoice:
         return self._choice
-
-    @property
-    def embedding(self) -> EmbeddingClient | None:
-        return self._embed
 
     @property
     def kg(self) -> KnowledgeGraph:
@@ -163,15 +135,11 @@ class Brain:
             metadata=metadata or {},
         )
         chunks = chunk_document(doc)
-        embeddings: list[list[float]] | None = None
-        if self._backend.requires_embeddings:
-            assert self._embed is not None
-            embeddings = self._embed.embed_many([c.text for c in chunks])
         self._backend.add(
             corpus=corpus,
             ids=[c.id for c in chunks],
             documents=[c.text for c in chunks],
-            embeddings=embeddings,
+            embeddings=None,
             metadatas=[c.metadata for c in chunks],
         )
         return {
@@ -190,15 +158,10 @@ class Brain:
         where: dict[str, Any] | None = None,
     ) -> list[SearchHit]:
         """Retrieve within a corpus, fusing scores across the 3 chunks of each doc."""
-        query_embedding: list[float] | None = None
-        if self._backend.requires_embeddings:
-            assert self._embed is not None
-            query_embedding = self._embed.embed(query)
-
         raw = self._backend.query(
             corpus=corpus,
             query_text=query,
-            query_embedding=query_embedding,
+            query_embedding=None,
             n_results=max(n_results * 3, 10),
             where=where,
         )
@@ -221,8 +184,6 @@ class Brain:
                     metadata=dict(meta),
                 )
             else:
-                # Additional matching chunks on the same document get a
-                # modest bonus, capped so the public score stays in [0, 1].
                 bumped = min(1.0, existing.score + score * 0.3)
                 agg[doc_id] = SearchHit(
                     document_id=existing.document_id,
@@ -298,15 +259,13 @@ class Brain:
             "backend": self._backend.name,
             "total_chunks": total_chunks,
             "sampled_unique_documents": len(unique_docs),
-            "embed_model": self._embed.model if self._embed else None,
+            "embed_model": None,
         }
 
     def list_corpora(self) -> list[str]:
         return self._backend.list_corpora()
 
     def close(self) -> None:
-        if self._embed is not None:
-            self._embed.close()
         self._backend.close()
         self._kg.close()
         self._wakeup.close()

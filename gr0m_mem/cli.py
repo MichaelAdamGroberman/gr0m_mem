@@ -173,15 +173,8 @@ def _cmd_status(_: argparse.Namespace) -> int:
 def _cmd_doctor(_: argparse.Namespace) -> int:
     import platform
 
-    print(f"gr0m_mem {__version__}")
+    print(f"gr0m_mem {__version__} (main branch — zero-install core)")
     print(f"  python:       {platform.python_version()} ({sys.executable})")
-
-    try:
-        import chromadb
-
-        print(f"  chromadb:     {chromadb.__version__} (optional extra installed)")
-    except Exception:  # noqa: BLE001
-        print("  chromadb:     not installed (optional — fallback backend will be used)")
 
     try:
         import mcp  # noqa: F401
@@ -196,18 +189,9 @@ def _cmd_doctor(_: argparse.Namespace) -> int:
     try:
         print(f"  backend:      {brain.backend_choice.name}")
         print(f"    reason:     {brain.backend_choice.reason}")
-        if brain.embedding is not None:
-            if brain.embedding.health():
-                print(f"  ollama:       reachable, {config.embed_model} present")
-            else:
-                print(f"  ollama:       UNREACHABLE ({config.ollama_url})")
-                print(f"    hint: ollama pull {config.embed_model}")
-        else:
-            print("  ollama:       not needed (backend is lexical-only)")
+        print("  ollama:       not needed on this branch")
         print(f"  kg stats:     {brain.kg.stats()}")
         print(f"  wakeup stats: {brain.wakeup.stats()}")
-        print(f"  chroma_path:  {config.chroma_path}")
-        print(f"  vectors.db:   {config.sqlite_vec_path}")
         print(f"  fts.db:       {config.sqlite_fts_path}")
         print(f"  graph.db:     {config.graph_db_path}")
         print(f"  wakeup.db:    {config.wakeup_db_path}")
