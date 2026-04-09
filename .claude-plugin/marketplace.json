@@ -1,0 +1,32 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "gr0m-mem",
+  "description": "Honest persistent memory brain for Claude Code that stops re-asking and re-deriving across sessions",
+  "owner": {
+    "name": "Michael Adam Groberman",
+    "url": "https://github.com/MichaelAdamGroberman"
+  },
+  "plugins": [
+    {
+      "name": "gr0m_mem",
+      "description": "Persistent memory brain that stops Claude from re-asking and re-deriving. Works with zero extras \u2014 SQLite FTS5 fallback if ChromaDB and Ollama are missing.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Michael Adam Groberman",
+        "url": "https://www.linkedin.com/in/michael-adam-groberman/"
+      },
+      "source": "./",
+      "category": "productivity",
+      "license": "MIT",
+      "keywords": [
+        "memory",
+        "rag",
+        "sqlite",
+        "chromadb",
+        "wakeup",
+        "loop-prevention",
+        "temporal-knowledge-graph"
+      ]
+    }
+  ]
+}
