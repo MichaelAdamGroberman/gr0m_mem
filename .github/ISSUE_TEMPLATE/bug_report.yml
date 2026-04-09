@@ -1,0 +1,90 @@
+name: Bug report
+description: Something isn't working as documented
+title: "bug: "
+labels: ["bug", "triage"]
+assignees:
+  - MichaelAdamGroberman
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill
+        out the sections below so the maintainer can reproduce the
+        issue without a back-and-forth.
+
+        **Security issues:** please do NOT use this form. Use the
+        Security tab's "Report a vulnerability" button instead.
+  - type: input
+    id: version
+    attributes:
+      label: Gr0m_Mem version
+      description: Output of `gr0m_mem --version` (or `pip show gr0m-mem | grep Version`)
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: Output of `python --version`
+      placeholder: "3.12.1"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS and architecture
+      description: macOS / Linux / Windows + arm64 / x86_64
+      placeholder: "macOS 14.4, arm64"
+    validations:
+      required: true
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Active backend
+      description: Output of `gr0m_mem doctor` includes a "backend:" line
+      options:
+        - sqlite_fts (zero-install default)
+        - sqlite_vec (Ollama-backed)
+        - chromadb (full extra)
+        - I don't know
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: The smallest sequence of commands or code that reproduces the bug
+      render: shell
+      placeholder: |
+        gr0m_mem remember --kind identity --text "Michael"
+        gr0m_mem wakeup --tokens 200
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include any stack traces, error messages, or unexpected output
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Output of `gr0m_mem doctor` and any relevant server/CLI logs
+      render: shell
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

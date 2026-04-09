@@ -1,5 +1,13 @@
 # Gr0m_Mem
 
+[![CI](https://github.com/MichaelAdamGroberman/gr0m_mem/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MichaelAdamGroberman/gr0m_mem/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/gr0m-mem.svg?logo=pypi&logoColor=white&label=PyPI)](https://pypi.org/project/gr0m-mem/)
+[![Python](https://img.shields.io/pypi/pyversions/gr0m-mem.svg?logo=python&logoColor=white)](https://pypi.org/project/gr0m-mem/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Downloads](https://static.pepy.tech/badge/gr0m-mem)](https://pepy.tech/project/gr0m-mem)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
+
 Zero-install persistent memory brain for **any** LLM runtime (Claude Code, Claude Desktop, Cursor, Gemini CLI, Continue, Cline, Zed, OpenAI Codex CLI, Aider, raw OpenAI / Anthropic / Gemini APIs, or a local Llama) that **stops the model from re-asking and re-deriving** across sessions.
 
 > **This is the `main` branch — the zero-install core.**
