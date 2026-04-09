@@ -1,22 +1,57 @@
 [project]
 name = "gr0m-mem"
 version = "0.1.0"
-description = "Honest, security-aware memory brain for Claude Code — ChromaDB + temporal KG + reproducible benchmarks."
+description = "Persistent memory brain for Claude Code. Semantic branch adds ChromaDB HNSW and SQLite-vector backends with Ollama embeddings."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10,<3.13"
-authors = [{ name = "Gr0m_Mem contributors" }]
-keywords = ["memory", "rag", "chromadb", "temporal-kg", "security", "mcp", "claude"]
+authors = [
+    { name = "Michael Adam Groberman", email = "81723568+MichaelAdamGroberman@users.noreply.github.com" },
+]
+maintainers = [
+    { name = "Michael Adam Groberman", email = "81723568+MichaelAdamGroberman@users.noreply.github.com" },
+]
+keywords = [
+    "memory",
+    "rag",
+    "sqlite",
+    "chromadb",
+    "mcp",
+    "claude",
+    "claude-code",
+    "claude-desktop",
+    "wakeup",
+    "loop-prevention",
+    "temporal-knowledge-graph",
+    "anthropic",
+    "llm",
+    "ai",
+    "ollama",
+    "model-context-protocol",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Environment :: Plugins",
+    "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Security",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Database :: Database Engines/Servers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Indexing",
+    "Typing :: Typed",
 ]
 dependencies = [
     # Core deps only — Gr0m_Mem runs out of the box with just these.
@@ -58,8 +93,14 @@ gr0m_mem = "gr0m_mem.cli:main"
 gr0m-mem = "gr0m_mem.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/gr0m/gr0m_mem"
-Issues = "https://github.com/gr0m/gr0m_mem/issues"
+Homepage = "https://pypi.org/project/gr0m-mem/"
+Source = "https://github.com/MichaelAdamGroberman/gr0m_mem/tree/semantic"
+Issues = "https://github.com/MichaelAdamGroberman/gr0m_mem/issues"
+Changelog = "https://github.com/MichaelAdamGroberman/gr0m_mem/blob/semantic/CHANGELOG.md"
+Documentation = "https://github.com/MichaelAdamGroberman/gr0m_mem#readme"
+Security = "https://github.com/MichaelAdamGroberman/gr0m_mem/security/policy"
+Releases = "https://github.com/MichaelAdamGroberman/gr0m_mem/releases"
+"Main branch (zero-install)" = "https://github.com/MichaelAdamGroberman/gr0m_mem/tree/main"
 
 [build-system]
 requires = ["hatchling"]

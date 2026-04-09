@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability report
+    url: https://github.com/MichaelAdamGroberman/gr0m_mem/security/advisories/new
+    about: Report a security issue privately. Please do NOT open a public issue for security problems.
+  - name: Questions and discussions
+    url: https://github.com/MichaelAdamGroberman/gr0m_mem/discussions
+    about: Ask a question or start a discussion (enable Discussions on the repo first if the link 404s).

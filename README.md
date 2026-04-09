@@ -1,11 +1,19 @@
-# Gr0m_Mem
+# Gr0m_Mem — semantic branch
 
-Zero-install persistent memory brain for **any** LLM runtime (Claude Code, Claude Desktop, Cursor, Gemini CLI, Continue, Cline, Zed, OpenAI Codex CLI, Aider, raw OpenAI / Anthropic / Gemini APIs, or a local Llama) that **stops the model from re-asking and re-deriving** across sessions.
+[![CI](https://github.com/MichaelAdamGroberman/gr0m_mem/actions/workflows/ci.yml/badge.svg?branch=semantic)](https://github.com/MichaelAdamGroberman/gr0m_mem/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/gr0m-mem.svg?logo=pypi&logoColor=white&label=PyPI)](https://pypi.org/project/gr0m-mem/)
+[![Python](https://img.shields.io/pypi/pyversions/gr0m-mem.svg?logo=python&logoColor=white)](https://pypi.org/project/gr0m-mem/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Downloads](https://static.pepy.tech/badge/gr0m-mem)](https://pepy.tech/project/gr0m-mem)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
-> **This is the `main` branch — the zero-install core.**
-> No ChromaDB, no Ollama, no 1 GB embedding model. Pure CPython stdlib + a couple of pure-Python wheels. `pip install gr0m-mem` and it just works.
+Persistent memory brain for **any** LLM runtime (Claude Code, Claude Desktop, Cursor, Gemini CLI, Continue, Cline, Zed, OpenAI Codex CLI, Aider, raw OpenAI / Anthropic / Gemini APIs, or a local Llama) that **stops the model from re-asking and re-deriving** across sessions.
+
+> **This is the `semantic` branch — the full build with ChromaDB + SQLite-vector + Ollama.**
+> Adds HNSW cosine retrieval and Ollama-backed embeddings on top of the zero-install core. Install with `pip install "gr0m-mem[chromadb]"` or pull Ollama and set `GR0M_MEM_BACKEND=sqlite_vec`.
 >
-> For semantic retrieval (ChromaDB HNSW + Ollama embeddings) switch to the [`semantic`](https://github.com/MichaelAdamGroberman/gr0m_mem/tree/semantic) branch.
+> For the minimal zero-install build (pure SQLite FTS5, no extras, no embedding model) switch to the [`main`](https://github.com/MichaelAdamGroberman/gr0m_mem/tree/main) branch.
 
 ## Works with any LLM
 
