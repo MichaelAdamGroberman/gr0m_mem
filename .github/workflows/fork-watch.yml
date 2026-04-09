@@ -1,0 +1,33 @@
+name: fork-watch
+
+# Logs every new fork and every new star to the Actions summary so the
+# maintainer can monitor supply-chain interest and detect suspicious
+# cloning. GitHub already tracks both in the Insights tab — this file
+# makes the same events visible in the notifications feed and produces
+# a job summary for each event.
+
+on:
+  fork:
+  watch:
+    types: [started]
+
+jobs:
+  log-event:
+    runs-on: ubuntu-latest
+    steps:
+      - name: log fork event
+        if: github.event_name == 'fork'
+        run: |
+          echo "## New fork" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- forker: [\`${{ github.event.forkee.owner.login }}\`](${{ github.event.forkee.owner.html_url }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "- new repo: [${{ github.event.forkee.full_name }}](${{ github.event.forkee.html_url }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "- at: \`${{ github.event.forkee.created_at }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: log star event
+        if: github.event_name == 'watch'
+        run: |
+          echo "## New star" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- user: [\`${{ github.event.sender.login }}\`](${{ github.event.sender.html_url }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "- stargazers now: \`${{ github.event.repository.stargazers_count }}\`" >> "$GITHUB_STEP_SUMMARY"
