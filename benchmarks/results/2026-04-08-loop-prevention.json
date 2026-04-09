@@ -1,0 +1,180 @@
+{
+  "benchmark": "loop_prevention",
+  "run_at": "2026-04-08T22:06:21.238698+00:00",
+  "environment": {
+    "gr0m_mem_version": "0.1.0",
+    "python": "3.12.12",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "machine": "arm64"
+  },
+  "scenarios_total": 8,
+  "scenarios_passed": 8,
+  "scenarios_failed": 0,
+  "scenario_pass_rate": 1.0,
+  "probes_total": 15,
+  "probes_passed": 15,
+  "probe_pass_rate": 1.0,
+  "scenarios": [
+    {
+      "id": "basic-identity",
+      "description": "Agent should not re-introduce itself.",
+      "passed": true,
+      "probes": [
+        {
+          "kind": "snapshot_must_contain",
+          "subject": null,
+          "needle": "Michael",
+          "passed": true,
+          "detail": "tokens_used=23, text_len=113"
+        },
+        {
+          "kind": "snapshot_must_contain",
+          "subject": null,
+          "needle": "terse",
+          "passed": true,
+          "detail": "tokens_used=23, text_len=113"
+        }
+      ]
+    },
+    {
+      "id": "db-choice",
+      "description": "Agent should recall the database decision, not re-ask.",
+      "passed": true,
+      "probes": [
+        {
+          "kind": "decision_must_exist",
+          "subject": "database",
+          "needle": "Postgres",
+          "passed": true,
+          "detail": "decision_count=1"
+        }
+      ]
+    },
+    {
+      "id": "auth-provider",
+      "description": "Multi-decision recall on the same subject.",
+      "passed": true,
+      "probes": [
+        {
+          "kind": "decision_must_exist",
+          "subject": "auth",
+          "needle": "Clerk",
+          "passed": true,
+          "detail": "decision_count=2"
+        },
+        {
+          "kind": "decision_must_exist",
+          "subject": "auth",
+          "needle": "JWT refresh",
+          "passed": true,
+          "detail": "decision_count=2"
+        }
+      ]
+    },
+    {
+      "id": "project-switch",
+      "description": "Newest decision on a subject is the one that should win.",
+      "passed": true,
+      "probes": [
+        {
+          "kind": "newest_decision_is",
+          "subject": "language",
+          "needle": "Rust",
+          "passed": true,
+          "detail": "Rust"
+        }
+      ]
+    },
+    {
+      "id": "mixed-facts",
+      "description": "Snapshot must include identity, preferences, active projects, and a decision.",
+      "passed": true,
+      "probes": [
+        {
+          "kind": "snapshot_must_contain",
+          "subject": null,
+          "needle": "Michael",
+          "passed": true,
+          "detail": "tokens_used=42, text_len=161"
+        },
+        {
+          "kind": "snapshot_must_contain",
+          "subject": null,
+          "needle": "no emojis",
+          "passed": true,
+          "detail": "tokens_used=42, text_len=161"
+        },
+        {
+          "kind": "snapshot_must_contain",
+          "subject": null,
+          "needle": "gr0m_mem",
+          "passed": true,
+          "detail": "tokens_used=42, text_len=161"
+        },
+        {
+          "kind": "decision_must_exist",
+          "subject": "license",
+          "needle": "MIT",
+          "passed": true,
+          "detail": "decision_count=1"
+        }
+      ]
+    },
+    {
+      "id": "scope-isolation",
+      "description": "Project-scoped decisions must not leak into other projects.",
+      "passed": true,
+      "probes": [
+        {
+          "kind": "scoped_decision_must_be",
+          "subject": "project-a/style",
+          "needle": "black",
+          "passed": true,
+          "detail": "black formatter"
+        },
+        {
+          "kind": "scoped_decision_must_be",
+          "subject": "project-b/style",
+          "needle": "ruff",
+          "passed": true,
+          "detail": "ruff format"
+        }
+      ]
+    },
+    {
+      "id": "forgotten-question",
+      "description": "Open questions should surface in the wakeup snapshot.",
+      "passed": true,
+      "probes": [
+        {
+          "kind": "snapshot_must_contain",
+          "subject": null,
+          "needle": "publish benchmarks",
+          "passed": true,
+          "detail": "tokens_used=14, text_len=53"
+        }
+      ]
+    },
+    {
+      "id": "milestone-history",
+      "description": "Shipped milestones should be retrievable by timeline.",
+      "passed": true,
+      "probes": [
+        {
+          "kind": "snapshot_must_contain",
+          "subject": null,
+          "needle": "Phase A",
+          "passed": true,
+          "detail": "tokens_used=27, text_len=70"
+        },
+        {
+          "kind": "snapshot_must_contain",
+          "subject": null,
+          "needle": "Phase B",
+          "passed": true,
+          "detail": "tokens_used=27, text_len=70"
+        }
+      ]
+    }
+  ]
+}
