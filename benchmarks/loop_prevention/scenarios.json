@@ -1,0 +1,126 @@
+{
+  "version": "1",
+  "description": "Two-session loop-prevention scenarios. Each scenario has a 'setup' phase (facts + decisions a hypothetical first session recorded) and a 'probe' phase (subjects the second session would ask about). A scenario passes if every probe subject can be answered from the wakeup store + decision recall without going back to the user.",
+  "scenarios": [
+    {
+      "id": "basic-identity",
+      "description": "Agent should not re-introduce itself.",
+      "setup": {
+        "facts": [
+          {"kind": "identity", "text": "Michael, software engineer working on macOS"},
+          {"kind": "preference", "text": "terse responses, no trailing summaries"}
+        ],
+        "decisions": []
+      },
+      "probes": [
+        {"kind": "snapshot_must_contain", "needle": "Michael"},
+        {"kind": "snapshot_must_contain", "needle": "terse"}
+      ]
+    },
+    {
+      "id": "db-choice",
+      "description": "Agent should recall the database decision, not re-ask.",
+      "setup": {
+        "facts": [],
+        "decisions": [
+          {"subject": "database", "decision": "Postgres over SQLite", "rationale": "concurrent writes + dataset > 10GB"}
+        ]
+      },
+      "probes": [
+        {"kind": "decision_must_exist", "subject": "database", "needle": "Postgres"}
+      ]
+    },
+    {
+      "id": "auth-provider",
+      "description": "Multi-decision recall on the same subject.",
+      "setup": {
+        "facts": [],
+        "decisions": [
+          {"subject": "auth", "decision": "Clerk over Auth0", "rationale": "better DX + pricing"},
+          {"subject": "auth", "decision": "JWT refresh handled server-side", "rationale": "mobile client doesn't store long-lived tokens"}
+        ]
+      },
+      "probes": [
+        {"kind": "decision_must_exist", "subject": "auth", "needle": "Clerk"},
+        {"kind": "decision_must_exist", "subject": "auth", "needle": "JWT refresh"}
+      ]
+    },
+    {
+      "id": "project-switch",
+      "description": "Newest decision on a subject is the one that should win.",
+      "setup": {
+        "facts": [],
+        "decisions": [
+          {"subject": "language", "decision": "TypeScript", "rationale": "team familiarity"},
+          {"subject": "language", "decision": "Rust", "rationale": "perf requirements became hard constraint"}
+        ]
+      },
+      "probes": [
+        {"kind": "newest_decision_is", "subject": "language", "needle": "Rust"}
+      ]
+    },
+    {
+      "id": "mixed-facts",
+      "description": "Snapshot must include identity, preferences, active projects, and a decision.",
+      "setup": {
+        "facts": [
+          {"kind": "identity", "text": "Michael, software engineer"},
+          {"kind": "preference", "text": "no emojis"},
+          {"kind": "project", "text": "active: gr0m_mem public launch"}
+        ],
+        "decisions": [
+          {"subject": "license", "decision": "MIT", "rationale": "maximal permissive"}
+        ]
+      },
+      "probes": [
+        {"kind": "snapshot_must_contain", "needle": "Michael"},
+        {"kind": "snapshot_must_contain", "needle": "no emojis"},
+        {"kind": "snapshot_must_contain", "needle": "gr0m_mem"},
+        {"kind": "decision_must_exist", "subject": "license", "needle": "MIT"}
+      ]
+    },
+    {
+      "id": "scope-isolation",
+      "description": "Project-scoped decisions must not leak into other projects.",
+      "setup": {
+        "facts": [],
+        "decisions": [
+          {"subject": "style", "decision": "black formatter", "scope": "project-a"},
+          {"subject": "style", "decision": "ruff format", "scope": "project-b"}
+        ]
+      },
+      "probes": [
+        {"kind": "scoped_decision_must_be", "scope": "project-a", "subject": "style", "needle": "black"},
+        {"kind": "scoped_decision_must_be", "scope": "project-b", "subject": "style", "needle": "ruff"}
+      ]
+    },
+    {
+      "id": "forgotten-question",
+      "description": "Open questions should surface in the wakeup snapshot.",
+      "setup": {
+        "facts": [
+          {"kind": "question", "subject": "launch", "text": "publish benchmarks before v0.1?"}
+        ],
+        "decisions": []
+      },
+      "probes": [
+        {"kind": "snapshot_must_contain", "needle": "publish benchmarks"}
+      ]
+    },
+    {
+      "id": "milestone-history",
+      "description": "Shipped milestones should be retrievable by timeline.",
+      "setup": {
+        "facts": [
+          {"kind": "milestone", "text": "shipped Phase A 2026-04-08"},
+          {"kind": "milestone", "text": "shipped Phase B 2026-04-08"}
+        ],
+        "decisions": []
+      },
+      "probes": [
+        {"kind": "snapshot_must_contain", "needle": "Phase A"},
+        {"kind": "snapshot_must_contain", "needle": "Phase B"}
+      ]
+    }
+  ]
+}
