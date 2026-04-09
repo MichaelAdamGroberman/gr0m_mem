@@ -1,0 +1,63 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: build wheel + sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.9.9"
+
+      - name: set up python
+        run: uv python install 3.12
+
+      - name: build
+        run: uv build
+
+      - name: upload dist artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/*
+
+  github-release:
+    name: github release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+      - name: create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+
+  pypi-publish:
+    name: pypi publish
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write  # OIDC trusted publisher
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+      - name: publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
