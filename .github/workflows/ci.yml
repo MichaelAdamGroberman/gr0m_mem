@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main, semantic]
+  pull_request:
+    branches: [main, semantic]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (${{ matrix.os }} / py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.9.9"
+
+      - name: set up python
+        run: uv python install ${{ matrix.python }}
+
+      # PEP 668: `uv pip install --system` is rejected on macOS runners
+      # because Homebrew's Python is externally managed. Use a venv.
+      - name: create venv
+        run: uv venv --python ${{ matrix.python }} .venv
+
+      - name: install gr0m_mem with dev extras
+        run: uv pip install --python .venv/bin/python -e ".[dev]"
+
+      - name: ruff
+        run: .venv/bin/python -m ruff check gr0m_mem tests benchmarks
+
+      - name: mypy
+        run: .venv/bin/python -m mypy gr0m_mem benchmarks
+
+      - name: pytest
+        run: .venv/bin/python -m pytest -q
+
+      - name: loop_prevention benchmark (must stay 100%)
+        run: |
+          .venv/bin/python -m benchmarks.loop_prevention.run \
+            --out benchmarks/results/ci-${{ matrix.os }}-py${{ matrix.python }}.json \
+            --strict
