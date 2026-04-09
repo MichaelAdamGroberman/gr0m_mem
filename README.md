@@ -103,6 +103,66 @@ gr0m_mem wakeup --tokens 200
 
 Now open Claude Code. It calls `mem_wakeup` at session start and sees you before the first message.
 
+## What it actually looks like
+
+Real, unedited terminal output from a fresh install on macOS:
+
+### `gr0m_mem doctor`
+
+```console
+$ gr0m_mem doctor
+gr0m_mem 0.1.0 (main branch — zero-install core)
+  python:       3.12.12 (/Users/michaelgroberman/Gr0m_Mem/.venv/bin/python)
+  mcp sdk:      installed
+  backend:      sqlite_fts
+    reason:     main branch ships only the SQLite FTS5 backend — no Ollama,
+                no chromadb, no downloads.
+  ollama:       not needed on this branch
+  kg stats:     {'total': 0, 'active': 0, 'closed': 0}
+  wakeup stats: {'total': 0}
+  fts.db:       ~/.gr0m_mem/fts.db
+  graph.db:     ~/.gr0m_mem/graph.db
+  wakeup.db:    ~/.gr0m_mem/wakeup.db
+```
+
+### Recording a few facts and a decision
+
+```console
+$ gr0m_mem remember --kind identity --text "Michael, software engineer on macOS"
+remembered: d5b976ce-7832-4e61-8323-d08cd56d9177 (identity) Michael, software engineer on macOS
+
+$ gr0m_mem remember --kind preference --text "terse responses, no trailing summaries"
+remembered: 3f28a0be-78f4-4fae-ac71-4e6db6818f03 (preference) terse responses, no trailing summaries
+
+$ python -c "
+> from gr0m_mem.brain import Brain
+> from gr0m_mem.config import Config
+> b = Brain(Config.from_env())
+> b.wakeup.record_decision(
+>     subject='backend',
+>     decision='sqlite_fts is the zero-dep default',
+>     rationale='pip install gr0m-mem must never fail',
+> )
+> b.close()
+> "
+```
+
+### `gr0m_mem wakeup --tokens 200` — what Claude sees at session start
+
+```console
+$ gr0m_mem wakeup --tokens 200
+{
+  "scope": "global",
+  "token_budget": 200,
+  "tokens_used": 50,
+  "facts_included": 3,
+  "facts_total": 3,
+  "text": "## IDENTITY\n- Michael, software engineer on macOS\n\n## PREFERENCE\n- terse responses, no trailing summaries\n\n## DECISION\n- backend: sqlite_fts is the zero-dep default (pip install gr0m-mem must never fail)"
+}
+```
+
+The agent inlines the `text` field at the top of every conversation and stops re-asking who you are.
+
 ## Requirements
 
 - **CPython 3.10, 3.11, or 3.12.** 3.13+ blocked until chromadb and the MCP SDK publish compatible wheels (affects the `semantic` branch; not an issue here).

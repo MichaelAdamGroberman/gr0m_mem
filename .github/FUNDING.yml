@@ -1,0 +1,10 @@
+# GitHub auto-renders this file as a "Sponsor" button on the repo page.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+#
+# Adding the GitHub Sponsors entry shows the button immediately. If the
+# maintainer has not yet activated GitHub Sponsors the button links to a
+# "not accepting sponsorships yet" page (harmless), and flips on the
+# moment Sponsors is enabled.
+
+github: MichaelAdamGroberman
+custom: ["https://www.linkedin.com/in/michael-adam-groberman/"]
