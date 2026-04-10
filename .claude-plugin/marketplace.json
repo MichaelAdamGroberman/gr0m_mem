@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "gr0m-mem",
+  "name": "gr0m_mem",
   "description": "Honest persistent memory brain for Claude Code that stops re-asking and re-deriving across sessions",
   "owner": {
     "name": "Michael Adam Groberman",
