@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Zero-install persistent memory brain for Claude Code and Claude Desktop. Stops re-asking and re-deriving across sessions."
 readme = "README.md"
 license = { text = "MIT" }
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.9,<3.14"
 authors = [
     { name = "Michael Adam Groberman", email = "81723568+MichaelAdamGroberman@users.noreply.github.com" },
 ]
@@ -41,9 +41,11 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Database :: Database Engines/Servers",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -98,7 +100,7 @@ packages = ["gr0m_mem"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]

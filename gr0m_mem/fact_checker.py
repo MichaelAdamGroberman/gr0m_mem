@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from gr0m_mem.graph.temporal import EdgePredicate
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Contradiction:
     """A single conflict between a proposed and an existing edge."""
 

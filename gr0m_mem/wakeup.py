@@ -95,7 +95,7 @@ def _count_tokens(text: str) -> int:
     return len(enc.encode(text))
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Fact:
     id: str
     kind: str

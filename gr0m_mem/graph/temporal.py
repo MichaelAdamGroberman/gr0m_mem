@@ -20,7 +20,7 @@ from uuid import uuid4
 _PREDICATE_RE = re.compile(r"[a-z][a-z0-9_]{0,62}")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class EdgePredicate:
     """An opaque relationship name. Lowercase snake_case, 1-63 chars."""
 
@@ -43,7 +43,7 @@ def _require_aware(dt: datetime, field_name: str) -> datetime:
     return dt
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class TemporalEdge:
     """A triple with a validity window.
 

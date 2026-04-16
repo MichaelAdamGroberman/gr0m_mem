@@ -36,7 +36,7 @@ from gr0m_mem.wakeup import Wakeup
 log = logging.getLogger("gr0m_mem.brain")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SearchHit:
     document_id: str
     chunk_type: str
@@ -45,7 +45,7 @@ class SearchHit:
     metadata: dict[str, Any]
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class BackendChoice:
     name: str
     reason: str

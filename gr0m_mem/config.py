@@ -28,7 +28,7 @@ def _env_path(var: str, default: Path) -> Path:
     return Path(val).expanduser() if val else default
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Config:
     home: Path
     chroma_path: Path

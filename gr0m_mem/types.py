@@ -16,7 +16,7 @@ from dataclasses import dataclass
 _CORPUS_RE = re.compile(r"[a-z0-9][a-z0-9_-]{1,62}[a-z0-9]")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Corpus:
     """An isolated memory tenant (project, topic, workspace).
 
@@ -45,7 +45,7 @@ class Corpus:
         return self.name.replace("-", "_")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class DocumentId:
     """Opaque document identifier, scoped within a corpus.
 

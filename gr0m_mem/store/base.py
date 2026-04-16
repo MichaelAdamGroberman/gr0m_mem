@@ -24,7 +24,7 @@ from typing import Any, Protocol, runtime_checkable
 from gr0m_mem.types import Corpus
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class QueryResult:
     """Normalized result shape returned by every backend.
 

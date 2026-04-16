@@ -21,14 +21,14 @@ from typing import Any
 from gr0m_mem.types import DocumentId
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Chunk:
     id: str
     text: str
     metadata: dict[str, Any]
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Document:
     id: DocumentId
     title: str
