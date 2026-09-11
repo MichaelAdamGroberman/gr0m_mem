@@ -10,7 +10,7 @@
     {
       "name": "gr0m_mem",
       "description": "Persistent memory brain that stops Claude from re-asking and re-deriving. Works with zero extras \u2014 SQLite FTS5 fallback if ChromaDB and Ollama are missing.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Michael Adam Groberman",
         "url": "https://www.linkedin.com/in/michael-adam-groberman/"

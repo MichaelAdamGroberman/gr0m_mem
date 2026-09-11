@@ -6,6 +6,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-09-11
+
 ### Fixed
 
 - **Hooks read the actual Claude Code payload.** `save_hook.sh` and

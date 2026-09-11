@@ -1,6 +1,6 @@
 {
   "name": "gr0m_mem",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Persistent memory brain that stops Claude from re-asking and re-deriving. Works with zero extras — SQLite FTS5 fallback if ChromaDB and Ollama are missing.",
   "keywords": ["memory", "rag", "chromadb", "sqlite", "mcp", "wakeup"],
   "license": "MIT",

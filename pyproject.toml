@@ -1,6 +1,6 @@
 [project]
 name = "gr0m-mem"
-version = "0.1.0"
+version = "0.1.1"
 description = "Zero-install persistent memory brain for Claude Code and Claude Desktop. Stops re-asking and re-deriving across sessions."
 readme = "README.md"
 license = { text = "MIT" }
