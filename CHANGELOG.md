@@ -6,6 +6,35 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Hooks read the actual Claude Code payload.** `save_hook.sh` and
+  `precompact_hook.sh` previously read the session id from `$SESSION_ID`,
+  a variable Claude Code never sets — it delivers the hook payload as
+  JSON on stdin (`{"session_id":...,"hook_event_name":...,...}`). Every
+  hook fire therefore recorded `session=unknown`. The scripts now parse
+  `session_id` (and `hook_event_name`) from stdin via `jq` when
+  available, falling back to a small `python3` one-liner, and only fall
+  back further to `$SESSION_ID` / `$CLAUDE_SESSION_ID` when stdin is
+  empty or has neither field. The existing character-whitelist
+  sanitisation (`tr -cd 'a-zA-Z0-9_-'`) is unchanged and still applied to
+  whatever session id is found. Both scripts drop `set -e` in favor of
+  explicit `exit 0` at the end so a hook can never block Claude Code,
+  even with missing `jq`/`python3` or a failing `gr0m_mem` CLI call.
+- **Wakeup snapshots no longer drown in hook noise.** `Wakeup.snapshot()`
+  now excludes facts with `metadata.source == "hook"`. In production this
+  had grown to 6,820 near-identical `claude-code stop session=unknown`
+  milestones, and a 400-token `mem_wakeup` snapshot returned 49 of them
+  and nothing else. Hook facts remain fully durable and queryable via
+  `Wakeup.all_facts()` — only the always-loaded snapshot excludes them.
+- **`stop` hook fires are now actually throttled.** `_cmd_hook`'s
+  docstring already claimed "the Python side handles throttling," but
+  nothing did. A repeated `stop` fire for the same session within
+  `GR0M_MEM_HOOK_THROTTLE_SECONDS` (default 600) of the last one is now
+  dropped with no new fact written. `precompact` fires are deliberately
+  never throttled — every compaction is a last chance to flush before
+  context is discarded.
+
 ## [0.1.0] — 2026-04-08
 
 First public alpha. Ships the minimum viable loop-prevention core and

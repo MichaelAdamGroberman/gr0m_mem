@@ -294,8 +294,16 @@ class Wakeup:
         identity first, then preferences, active projects, recent
         decisions, open questions, milestones, context. Each section is
         added whole-or-not — we never truncate a fact in the middle.
+
+        Facts recorded by the Claude Code hooks (``metadata.source ==
+        "hook"``) are excluded here. Those are durable "a hook fired at
+        T" milestones kept for session-graph reconstruction and hook
+        debugging — high volume, low value for the always-loaded
+        snapshot a session starts with. They remain fully queryable via
+        :meth:`all_facts`; they just never crowd out real facts in
+        ``snapshot()``.
         """
-        facts = self.all_facts(scope=scope)
+        facts = [f for f in self.all_facts(scope=scope) if f.metadata.get("source") != "hook"]
         if not facts:
             return {
                 "scope": scope,
