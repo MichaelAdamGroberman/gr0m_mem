@@ -16,14 +16,29 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from gr0m_mem import __version__
 from gr0m_mem.brain import Brain
 from gr0m_mem.config import Config
 from gr0m_mem.types import Corpus
+
+# Default minimum seconds between two "stop" hook milestones for the same
+# session before a new one is written; repeats inside the window are
+# dropped entirely (not even touched) to keep the wakeup store from
+# filling with near-duplicate "claude-code stop session=X" facts.
+# PreCompact never throttles -- see precompact_hook.sh: every compaction
+# is a last chance to flush before context is discarded. Overridable via
+# GR0M_MEM_HOOK_THROTTLE_SECONDS (read at call time, mainly for tests).
+_DEFAULT_HOOK_THROTTLE_SECONDS = 600
+
+
+def _hook_throttle_seconds() -> int:
+    return int(os.environ.get("GR0M_MEM_HOOK_THROTTLE_SECONDS", _DEFAULT_HOOK_THROTTLE_SECONDS))
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -61,6 +76,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p_hook = sub.add_parser("hook", help="Claude Code hook entry points")
     p_hook.add_argument("event", choices=["stop", "precompact"])
     p_hook.add_argument("--session-id", default="unknown")
+    p_hook.add_argument(
+        "--hook-event-name",
+        default=None,
+        help="Raw hook_event_name from the Claude Code payload, if the caller has it",
+    )
 
     p_wakeup = sub.add_parser("wakeup", help="Print the persistent-memory snapshot")
     p_wakeup.add_argument("--scope", default="global")
@@ -235,10 +255,18 @@ def _cmd_remember(args: argparse.Namespace) -> int:
 def _cmd_hook(args: argparse.Namespace) -> int:
     """Entry point for the Claude Code Stop / PreCompact hooks.
 
-    Records a ``milestone`` fact so every hook fire is durable. Metadata
-    includes the event type, sanitized session id, wall-clock timestamp,
-    and (when we can compute it) the elapsed seconds since the last hook
-    of the same event for the same session.
+    Records a ``milestone`` fact so every hook fire is durable, with
+    metadata (not :data:`gr0m_mem.wakeup.VALID_KINDS`) carrying the event
+    type, sanitized session id, wall-clock timestamp, and (when we can
+    compute it) the elapsed seconds since the last hook of the same event
+    for the same session. These hook milestones are excluded from
+    :meth:`gr0m_mem.wakeup.Wakeup.snapshot` (``metadata.source ==
+    "hook"``) but remain durable and queryable via ``all_facts``.
+
+    Throttling: repeated "stop" fires for the same session within
+    :func:`_hook_throttle_seconds` of the last one are dropped entirely
+    -- no new fact, no write. "precompact" never throttles: every
+    compaction is a last chance to flush before context is discarded.
 
     Richer summarization (parsing the JSONL transcript on stdin, pulling
     out decisions and quoted user statements) is intentionally deferred:
@@ -260,22 +288,35 @@ def _cmd_hook(args: argparse.Namespace) -> int:
             and f.metadata.get("session_id") == args.session_id
         ]
         elapsed_since_last: float | None = None
+        newest = None
         if prior:
             newest = max(prior, key=lambda f: f.added_at)
             elapsed_since_last = (
                 datetime.now(timezone.utc) - newest.added_at
             ).total_seconds()
 
+        if (
+            args.event == "stop"
+            and newest is not None
+            and elapsed_since_last is not None
+            and elapsed_since_last < _hook_throttle_seconds()
+        ):
+            return 0
+
+        metadata: dict[str, Any] = {
+            "source": "hook",
+            "event": args.event,
+            "session_id": args.session_id,
+            "prior_hook_count": len(prior),
+            "elapsed_since_last_s": elapsed_since_last,
+        }
+        if args.hook_event_name:
+            metadata["hook_event_name"] = args.hook_event_name
+
         brain.wakeup.remember(
             kind="milestone",
             text=f"claude-code {args.event} session={args.session_id}",
-            metadata={
-                "source": "hook",
-                "event": args.event,
-                "session_id": args.session_id,
-                "prior_hook_count": len(prior),
-                "elapsed_since_last_s": elapsed_since_last,
-            },
+            metadata=metadata,
         )
     finally:
         brain.close()
